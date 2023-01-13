@@ -6,6 +6,7 @@ library(gridExtra)
 library(data.table)
 library(ggpubr)
 library(ggridges)
+library(BSgenome.Mmusculus.UCSC.mm10)
 
 getwd()
 
@@ -37,6 +38,12 @@ gene_ccre <-  cCREs %>%
 
 gene_list <- (separate(data = gene_ccre, col = Genes, into = c(as.character(seq(1,41,1))),","))
 
-gene_list_long <- gather(gene_list,CisBin)
+gene_list_long <- gather(gene_list)
+my.dnastring <- as.character(Biostrings::getSeq(BSgenome.Mmusculus.UCSC.mm10, "chr1", 3000000, 3000100))
 
-
+test<- getSeq(BSgenome.Mmusculus.UCSC.mm10, 'chr1', start=16650000, end=16660000)
+sequence_list <- list()
+for (i in 1:nrow(cCREs)) {
+  sequence <- getSeq(BSgenome.Mmusculus.UCSC.mm10, paste(cCREs[i,6]), start=cCREs[i,7], end=cCREs[i,8])
+  sequence_list[[i]] <-sequence
+}
