@@ -7,7 +7,7 @@ library(data.table)
 library(ggpubr)
 library(ggridges)
 library(BSgenome.Mmusculus.UCSC.mm10)
-
+library(seqinr)
 getwd()
 
 rm(list = ls())
@@ -41,7 +41,7 @@ gene_list <- (separate(data = gene_ccre, col = Genes, into = c(as.character(seq(
 gene_list_long <- gather(gene_list)
 my.dnastring <- as.character(Biostrings::getSeq(BSgenome.Mmusculus.UCSC.mm10, "chr1", 3000000, 3000100))
 
-test<- getSeq(BSgenome.Mmusculus.UCSC.mm10, 'chr1', start=16650000, end=16660000)
+#test<- getSeq(BSgenome.Mmusculus.UCSC.mm10, 'chr1', start=16650000, end=16660000)
 # sequence_list <- list()
 # for (i in 1:nrow(cCREs)) {
 #   sequence <- getSeq(BSgenome.Mmusculus.UCSC.mm10, paste(cCREs[i,6]), start=cCREs[i,7], end=cCREs[i,8])
@@ -53,9 +53,29 @@ save(file = "sequence_list.rda", sequence_list)
 
 
 load("sequence_list.rda")
+sequence_df <- data.frame()
+for (i in 1:length(sequence_list)) { 
+  #extracts each sequence
+  one_sequence <- sequence_list[[i]]
+  #convers each sequence to a df and adds it to a df
+  sequence_df[i,1] <-data.frame(toString(one_sequence))
+}
 
-testy <- purrr::flatten(sequence_list)
-write.csv(sequence_list, file = "sequences.csv")
-ccre_ids <- list(cCREs$CisBin)
+cCREs <- cbind(cCREs,sequence_df)
+cCREs <- cCREs %>%
+  rename("toString.one_sequence." = "sequence")
+
+cCREs_export <- cCREs %>%
+  select(CisBin,sequence)
+D <- do.call(rbind, lapply(seq(nrow(cCREs_export)), function(i) t(cCREs_export[i, ])))
 
 
+bed_format <- cCREs %>%
+  select(CisBin, Chr, Start, End) %>%
+  rename("Start" = "chromStart",
+         "End" = "chromEnd",
+         "Chr" = "chrom",
+         "CisBin" = "name")
+
+write.csv(bed_format, file = "file.csv")
+GenomicRanges::makeGRangesFromDataFrame
