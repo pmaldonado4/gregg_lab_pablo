@@ -16,7 +16,7 @@ setwd("~/Library/Mobile\ Documents/com~apple~CloudDocs/Active Projects/Gregg Lab
 hub_data <- read.delim("Basic10kbProteinCodingContactHubsSimple120_promo.txt")
 
 cCREs <- hub_data %>%
-  filter(cCRE =="TRUE")
+  filter(cCRE =="TRUE") 
 
 
 #ccres chr distribution
@@ -33,7 +33,7 @@ ggplot(data = cCREs, aes(x = Chr, group = Chr)) +
 ###exploration of gene function
 
 gene_ccre <-  cCREs %>%
-  select(CisBin,Genes)
+  select(CisBin,Genes) 
 
 
 gene_list <- (separate(data = gene_ccre, col = Genes, into = c(as.character(seq(1,41,1))),","))
@@ -42,8 +42,20 @@ gene_list_long <- gather(gene_list)
 my.dnastring <- as.character(Biostrings::getSeq(BSgenome.Mmusculus.UCSC.mm10, "chr1", 3000000, 3000100))
 
 test<- getSeq(BSgenome.Mmusculus.UCSC.mm10, 'chr1', start=16650000, end=16660000)
-sequence_list <- list()
-for (i in 1:nrow(cCREs)) {
-  sequence <- getSeq(BSgenome.Mmusculus.UCSC.mm10, paste(cCREs[i,6]), start=cCREs[i,7], end=cCREs[i,8])
-  sequence_list[[i]] <-sequence
-}
+# sequence_list <- list()
+# for (i in 1:nrow(cCREs)) {
+#   sequence <- getSeq(BSgenome.Mmusculus.UCSC.mm10, paste(cCREs[i,6]), start=cCREs[i,7], end=cCREs[i,8])
+#   sequence_list[[i]] <-sequence
+# }
+
+
+save(file = "sequence_list.rda", sequence_list)
+
+
+load("sequence_list.rda")
+
+testy <- purrr::flatten(sequence_list)
+write.csv(sequence_list, file = "sequences.csv")
+ccre_ids <- list(cCREs$CisBin)
+
+
