@@ -1,0 +1,7 @@
+source("https://bioconductor.org/biocLite.R")
+biocLite("BrainStars")
+if (!require("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install("BrainStars")
+library("BrainStars")
+BiocManager::install("BrainStars", type = "binary")
